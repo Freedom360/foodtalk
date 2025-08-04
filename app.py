@@ -47,15 +47,28 @@ uploaded_file = st.file_uploader("Upload TXT Yelp reviews", type=["txt"])
 num_topics = st.slider("Number of Topics", 2, 15, 10)
 passes = st.slider("Number of Passes", 5, 30, 15)
 
+# if uploaded_file:
+#     #Load Dataset
+#     texts = uploaded_file.read().decode('utf-8').splitlines()
+#     st.success(f"✅ Loaded {len(texts)} reviews from dataset.")   
+# else:
+#     with open('Indian.txt', 'r', encoding='utf-8') as f:
+#         texts = f.read().splitlines()
+#     st.info("📂 No file uploaded. Using default Indian cuisine dataset.")
+#     st.success(f"✅ Loaded {len(texts)} reviews from default dataset.")
+# Load Dataset (uploaded or default)
 if uploaded_file:
-    #Load Dataset
     texts = uploaded_file.read().decode('utf-8').splitlines()
     st.success(f"✅ Loaded {len(texts)} reviews from dataset.")   
 else:
-    with open('Indian.txt', 'r', encoding='utf-8') as f:
+    default_file = 'Indian.txt'
+    if not os.path.exists(default_file):
+        st.error(f"❌ Default dataset '{default_file}' not found.")
+        st.stop()
+    with open(default_file, 'r', encoding='utf-8') as f:
         texts = f.read().splitlines()
     st.info("📂 No file uploaded. Using default Indian cuisine dataset.")
-    st.success(f"✅ Loaded {len(texts)} reviews from default dataset.")    
+    st.success(f"✅ Loaded {len(texts)} reviews from default dataset.") 
 
 #Preprocessing
 stop_words = set(stopwords.words('english'))
