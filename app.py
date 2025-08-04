@@ -17,6 +17,7 @@ import math
 import base64
 import io
 
+# cache nltk downloads
 @st.cache_resource
 def setup():
     nltk.download('punkt')
@@ -26,23 +27,34 @@ def setup():
 
 setup()
 
+# Set page theme and title
+st.set_page_config(
+    page_title="Food Talk",
+    page_icon="🔍",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+    menu_items={
+        'About': "Food Talk is a Streamlit app that allows users to upload restaurant reviews and explore the key topics and themes discussed in those reviews using LDA topic modeling." ,
+    }
+)
 # Streamlit UI
 st.title("Food Talk")
+st.subtitle("Food Talk is a Streamlit app that allows users to upload restaurant reviews and explore the key topics and themes discussed in those reviews using LDA topic modeling.")
 st.write("Upload your dataset to discover main discussion themes in restaurant reviews.")
 
+# file uploader code
 uploaded_file = st.file_uploader("Upload TXT Yelp reviews", type=["txt"])
 num_topics = st.slider("Number of Topics", 2, 15, 10)
 passes = st.slider("Number of Passes", 5, 30, 15)
 
 if uploaded_file:
-    # ===== Load Dataset =====
+    #Load Dataset
     texts = uploaded_file.read().decode('utf-8').splitlines()
 
-    # ===== Preprocessing =====
+    #Preprocessing
     stop_words = set(stopwords.words('english'))
-    # stop_words.update(['restaurant', 'place', 'food', 'good', 'great', 'really', 
-    #                    'like', 'would', 'get', 'go', 'one', 'time', 'also', 'back', 'try',
-    #                      'best', 'table', 'got'])
+
+    # additional stop words 
     stop_words.update([
     # Basic restaurant terms
     'restaurant', 'place', 'food', 'meal', 'dish', 'dishes', 'menu', 'order', 'ordered',
@@ -95,12 +107,12 @@ if uploaded_file:
         if len(tokens) > 5:
             processed_texts.append(tokens)
 
-    # ===== Dictionary and Corpus =====
+    #dictionary and corpus
     dictionary = corpora.Dictionary(processed_texts)
     dictionary.filter_extremes(no_below=5, no_above=0.7)
     corpus = [dictionary.doc2bow(text) for text in processed_texts]
 
-    # ===== Train LDA =====
+    # LDA model
     lda_model = models.LdaModel(
         corpus=corpus,
         id2word=dictionary,
@@ -111,25 +123,24 @@ if uploaded_file:
         eta='auto'
     )
 
-    # ===== Show Topics =====
+    # topic formula and weights
     st.subheader("Top Topics")
     for idx, topic in lda_model.print_topics(num_words=10):
         st.write(f"**Topic {idx}:** {topic}")
 
-    # ===== Word Clouds =====
+    # word cloud
     with st.container():
         st.subheader("Word Clouds for Each Topic")
 
-        # Dynamically calculate rows and columns for near-square layout
+        # dynamic sizing
         cols = min(5, math.ceil(math.sqrt(num_topics)))
         rows = math.ceil(num_topics / cols)
-
-        # Adjust figure size dynamically based on number of topics
         fig_width = cols * 4
         fig_height = rows * 3
         fig, axes = plt.subplots(rows, cols, figsize=(fig_width, fig_height))
         axes = axes.flatten() if num_topics > 1 else [axes]
 
+        # create word clouds for each topic 
         for i in range(num_topics):
             topic_words = dict(lda_model.show_topic(i, topn=30))
             wc = WordCloud(width=500, height=300, background_color='white',
@@ -138,13 +149,14 @@ if uploaded_file:
             axes[i].set_title(f'Topic {i}', fontsize=12)
             axes[i].axis('off')
 
-        # Hide unused axes if num_topics is not a perfect square
+        # hide unused axes 
         for j in range(num_topics, len(axes)):
             fig.delaxes(axes[j])
 
         plt.tight_layout()
         st.pyplot(fig, use_container_width=False)
-            # === Download button for Word Cloud ===
+
+        # download word cloud image
         buf = io.BytesIO()
         fig.savefig(buf, format="png", dpi=300, bbox_inches="tight")
         st.download_button(
@@ -156,26 +168,20 @@ if uploaded_file:
         plt.close(fig)
     
 
-    # ===== Interactive Visualization =====
+    # Interactive Distance Map
     with st.container():
         st.subheader("Interactive Topic Visualization")
         vis_data = gensimvis.prepare(lda_model, corpus, dictionary)
 
         # Dynamically adjust height based on number of topics (base height = 400)
         dynamic_height = min(1200, max(400, num_topics * 80))
-        dynamic_width = min(1400, max(800, num_topics * 100)) 
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as tmp_file:
             pyLDAvis.save_html(vis_data, tmp_file.name)
             html_content = open(tmp_file.name, 'r', encoding='utf-8').read()
-            # st.components.v1.html(html_content, height=dynamic_height, width=dynamic_width, scrolling=True)
+        st.components.v1.html(html_content, height=dynamic_height, scrolling=True)
 
-
-        #         # Encode HTML to base64 for opening in new tab
-        # b64 = base64.b64encode(html_content.encode()).decode()
-        # href = f'<a href="data:text/html;base64,{b64}" target="_blank">🔎 Open Full Screen</a>'    
-        st.components.v1.html(html_content, height=dynamic_height, width=dynamic_width, scrolling=True)
-        # Provide a download button
+        # download html file
         with open(tmp_file.name, "rb") as file:
             st.download_button(
                 label="Download LDA Visualization",
