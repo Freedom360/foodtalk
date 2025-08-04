@@ -55,8 +55,6 @@ passes = st.slider("Number of Passes", 5, 30, 15)
 # texts = uploaded_file.read().decode('utf-8').splitlines()
 # st.success(f"✅ Loaded {len(texts)} reviews.")
 
-st.header("Choose Your Dataset", divider="blue")
-
 data_option = st.radio("How would you like to load data?", ("Use default (Indian Reviews)", "Upload your own"))
 
 if data_option == "Use default (Indian Reviews)":
