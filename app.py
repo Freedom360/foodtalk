@@ -50,6 +50,7 @@ passes = st.slider("Number of Passes", 5, 30, 15)
 if uploaded_file:
     #Load Dataset
     texts = uploaded_file.read().decode('utf-8').splitlines()
+    st.success(f"✅ Loaded {len(texts)} reviews from dataset.")   
 else:
     with open('Indian.txt', 'r', encoding='utf-8') as f:
         texts = f.read().splitlines()
@@ -57,51 +58,54 @@ else:
     st.success(f"✅ Loaded {len(texts)} reviews from default dataset.")    
 
 #Preprocessing
-stop_words = set(stopwords.words('english'))
-
-# additional stop words 
-stop_words.update([
-# Basic restaurant terms
-'restaurant', 'place', 'food', 'meal', 'dish', 'dishes', 'menu', 'order', 'ordered',
-'eat', 'eating', 'ate', 'lunch', 'dinner', 'breakfast', 'brunch',
-
-# Service & experience
-'service', 'server', 'waiter', 'waitress', 'staff', 'table', 'seat', 'seated',
-'wait', 'waiting', 'waited', 'reservation', 'atmosphere', 'ambiance', 'experience',
-
-# Common adjectives (often not meaningful for analysis)
-'good', 'great', 'nice', 'fine', 'okay', 'ok', 'decent', 'amazing', 'awesome',
-'excellent', 'perfect', 'wonderful', 'fantastic', 'outstanding', 'best', 'worst',
-'bad', 'terrible', 'horrible', 'awful', 'disappointing',
-
-# Temporal & frequency words
-'time', 'times', 'first', 'last', 'next', 'previous', 'again', 'back', 'return',
-'visit', 'visited', 'visiting', 'came', 'come', 'coming', 'went', 'go', 'going',
-
-# Quantity & comparison
-'one', 'two', 'three', 'lot', 'lots', 'much', 'many', 'more', 'most', 'less',
-'little', 'bit', 'quite', 'very', 'really', 'pretty', 'super', 'totally',
-
-# Actions & intentions
-'try', 'tried', 'trying', 'get', 'got', 'getting', 'have', 'had', 'having',
-'would', 'could', 'should', 'will', 'definitely', 'probably', 'maybe',
-'recommend', 'recommended', 'suggest', 'worth',
-
-# Location & direction
-'here', 'there', 'around', 'near', 'close', 'far', 'local', 'area', 'neighborhood',
-
-# Pricing (unless you want to analyze price sentiment)
-'price', 'prices', 'pricing', 'cost', 'costs', 'expensive', 'cheap', 'affordable',
-'reasonable', 'pricey', 'budget', 'value', 'money', 'worth', 'pay', 'paid',
-
-# Connecting words & fillers
-'like', 'also', 'well', 'just', 'even', 'though', 'however', 'although',
-'seems', 'seemed', 'looks', 'looked', 'feels', 'felt', 'think', 'thought',
-
-# Reviews-specific terms
-'review', 'reviews', 'rating', 'star', 'stars', 'yelp', 'google', 'recommend',
-'customer', 'customers', 'people', 'everyone', 'anyone', 'somebody', 'nobody'
-])
+@st.cache_resource
+def stop_words_update():
+    stop_words = set(stopwords.words('english'))
+    
+    # additional stop words 
+    stop_words.update([
+    # Basic restaurant terms
+    'restaurant', 'place', 'food', 'meal', 'dish', 'dishes', 'menu', 'order', 'ordered',
+    'eat', 'eating', 'ate', 'lunch', 'dinner', 'breakfast', 'brunch',
+    
+    # Service & experience
+    'service', 'server', 'waiter', 'waitress', 'staff', 'table', 'seat', 'seated',
+    'wait', 'waiting', 'waited', 'reservation', 'atmosphere', 'ambiance', 'experience',
+    
+    # Common adjectives (often not meaningful for analysis)
+    'good', 'great', 'nice', 'fine', 'okay', 'ok', 'decent', 'amazing', 'awesome',
+    'excellent', 'perfect', 'wonderful', 'fantastic', 'outstanding', 'best', 'worst',
+    'bad', 'terrible', 'horrible', 'awful', 'disappointing',
+    
+    # Temporal & frequency words
+    'time', 'times', 'first', 'last', 'next', 'previous', 'again', 'back', 'return',
+    'visit', 'visited', 'visiting', 'came', 'come', 'coming', 'went', 'go', 'going',
+    
+    # Quantity & comparison
+    'one', 'two', 'three', 'lot', 'lots', 'much', 'many', 'more', 'most', 'less',
+    'little', 'bit', 'quite', 'very', 'really', 'pretty', 'super', 'totally',
+    
+    # Actions & intentions
+    'try', 'tried', 'trying', 'get', 'got', 'getting', 'have', 'had', 'having',
+    'would', 'could', 'should', 'will', 'definitely', 'probably', 'maybe',
+    'recommend', 'recommended', 'suggest', 'worth',
+    
+    # Location & direction
+    'here', 'there', 'around', 'near', 'close', 'far', 'local', 'area', 'neighborhood',
+    
+    # Pricing (unless you want to analyze price sentiment)
+    'price', 'prices', 'pricing', 'cost', 'costs', 'expensive', 'cheap', 'affordable',
+    'reasonable', 'pricey', 'budget', 'value', 'money', 'worth', 'pay', 'paid',
+    
+    # Connecting words & fillers
+    'like', 'also', 'well', 'just', 'even', 'though', 'however', 'although',
+    'seems', 'seemed', 'looks', 'looked', 'feels', 'felt', 'think', 'thought',
+    
+    # Reviews-specific terms
+    'review', 'reviews', 'rating', 'star', 'stars', 'yelp', 'google', 'recommend',
+    'customer', 'customers', 'people', 'everyone', 'anyone', 'somebody', 'nobody'
+    ])
+stop_words_update()
 lemmatizer = WordNetLemmatizer()
 
 processed_texts = []
