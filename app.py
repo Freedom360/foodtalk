@@ -47,36 +47,29 @@ uploaded_file = st.file_uploader("Upload TXT Yelp reviews", type=["txt"])
 num_topics = st.slider("Number of Topics", 2, 15, 10)
 passes = st.slider("Number of Passes", 5, 30, 15)
 
-# if uploaded_file:
-#     #Load Dataset
-#     texts = uploaded_file.read().decode('utf-8').splitlines()
-#     st.success(f"✅ Loaded {len(texts)} reviews from dataset.")   
-# else:
-#     with open('Indian.txt', 'r', encoding='utf-8') as f:
-#         texts = f.read().splitlines()
+# if uploaded_file is None:
+#     uploaded_file = open("Indian.txt", "rb")
 #     st.info("📂 No file uploaded. Using default Indian cuisine dataset.")
-#     st.success(f"✅ Loaded {len(texts)} reviews from default dataset.")
-# Load Dataset (uploaded or default)
-# if uploaded_file:
-#     texts = uploaded_file.read().decode('utf-8').splitlines()
-#     st.success(f"✅ Loaded {len(texts)} reviews from dataset.")   
-# else:
-#     default_file = 'Indian.txt'
-#     if not os.path.exists(default_file):
-#         st.error(f"❌ Default dataset '{default_file}' not found.")
-#         st.stop()
-#     with open(default_file, 'r', encoding='utf-8') as f:
-#         texts = f.read().splitlines()
-#     st.info("📂 No file uploaded. Using default Indian cuisine dataset.")
-#     st.success(f"✅ Loaded {len(texts)} reviews from default dataset.") 
-# If no file uploaded, use default Indian.txt as the file
-if uploaded_file is None:
-    uploaded_file = open("Indian.txt", "rb")
-    st.info("📂 No file uploaded. Using default Indian cuisine dataset.")
 
-# Now you can safely read uploaded_file as usual
-texts = uploaded_file.read().decode('utf-8').splitlines()
-st.success(f"✅ Loaded {len(texts)} reviews.")
+# # Now you can safely read uploaded_file as usual
+# texts = uploaded_file.read().decode('utf-8').splitlines()
+# st.success(f"✅ Loaded {len(texts)} reviews.")
+
+st.header("Choose Your Dataset", divider="blue")
+
+data_option = st.radio("How would you like to load data?", ("Use default (Indian Reviews)", "Upload your own"))
+
+if data_option == "Use default (Indian Reviews)":
+    with open("Indian.txt", "r", encoding="utf-8") as f:
+        texts = f.read().decode('utf-8').splitlines()
+    st.success("Loaded default dataset: indian.txt")
+else:
+    uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
+    if uploaded_file:
+        texts = uploaded_file.read().decode("utf-8").splitlines()
+        st.success("Custom dataset uploaded successfully.")
+    else:
+        st.stop()
 
 #Preprocessing
 stop_words = set(stopwords.words('english'))
