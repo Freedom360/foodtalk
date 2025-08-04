@@ -20,6 +20,7 @@ import io
 @st.cache_resource
 def setup():
     nltk.download('punkt')
+    nltk.download('punkt_tab')
     nltk.download('stopwords')
     nltk.download('wordnet')
 
