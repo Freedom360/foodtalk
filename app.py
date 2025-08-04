@@ -30,18 +30,13 @@ setup()
 st.title("Food Talk")
 st.write("Upload your dataset to discover main discussion themes in restaurant reviews.")
 
-uploaded_file = st.file_uploader("Upload JSON or TXT Yelp reviews", type=["json", "txt"])
+uploaded_file = st.file_uploader("Upload TXT Yelp reviews", type=["txt"])
 num_topics = st.slider("Number of Topics", 2, 15, 10)
 passes = st.slider("Number of Passes", 5, 30, 15)
 
 if uploaded_file:
     # ===== Load Dataset =====
-    if uploaded_file.name.endswith('.json'):
-        reviews = [json.loads(line) for line in uploaded_file]
-        df_reviews = pd.DataFrame(reviews)
-        texts = df_reviews['text'].dropna().tolist()
-    else:
-        texts = uploaded_file.read().decode('utf-8').splitlines()
+    texts = uploaded_file.read().decode('utf-8').splitlines()
 
     # ===== Preprocessing =====
     stop_words = set(stopwords.words('english'))
