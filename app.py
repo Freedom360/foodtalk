@@ -69,14 +69,14 @@ passes = st.slider("Number of Passes", 5, 30, 15)
 #         texts = f.read().splitlines()
 #     st.info("📂 No file uploaded. Using default Indian cuisine dataset.")
 #     st.success(f"✅ Loaded {len(texts)} reviews from default dataset.") 
-if uploaded_file is not None:
-    texts = uploaded_file.read().decode('utf-8').splitlines()
-    st.success(f"✅ Loaded {len(texts)} reviews from uploaded dataset.")
-elif os.path.exists('Indian.txt'):
-    with open('Indian.txt', 'r', encoding='utf-8') as f:
-        texts = f.read().splitlines()
+# If no file uploaded, use default Indian.txt as the file
+if uploaded_file is None:
+    uploaded_file = open("Indian.txt", "rb")
     st.info("📂 No file uploaded. Using default Indian cuisine dataset.")
-    st.success(f"✅ Loaded {len(texts)} reviews from default dataset.")
+
+# Now you can safely read uploaded_file as usual
+texts = uploaded_file.read().decode('utf-8').splitlines()
+st.success(f"✅ Loaded {len(texts)} reviews.")
 
 #Preprocessing
 stop_words = set(stopwords.words('english'))
