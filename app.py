@@ -39,7 +39,7 @@ st.set_page_config(
 )
 # Streamlit UI
 st.title("Food Talk")
-st.subtitle("Food Talk is a Streamlit app that allows users to upload restaurant reviews and explore the key topics and themes discussed in those reviews using LDA topic modeling.")
+st.subheader("Food Talk is a Streamlit app that allows users to upload restaurant reviews and explore the key topics and themes discussed in those reviews using LDA topic modeling.")
 st.write("Upload your dataset to discover main discussion themes in restaurant reviews.")
 
 # file uploader code
