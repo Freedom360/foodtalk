@@ -59,7 +59,7 @@ else:
 
 #Preprocessing
 @st.cache_resource
-def stop_words_update(stopwords):
+def stop_words_update():
     stop_words = set(stopwords.words('english'))
     
     # additional stop words 
