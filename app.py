@@ -59,7 +59,7 @@ data_option = st.radio("How would you like to load data?", ("Use default (Indian
 
 if data_option == "Use default (Indian Reviews)":
     with open("Indian.txt", "r", encoding="utf-8") as f:
-        texts = f.read().decode('utf-8').splitlines()
+        texts = f.read().splitlines()
     st.success("Loaded default dataset: indian.txt")
 else:
     uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
